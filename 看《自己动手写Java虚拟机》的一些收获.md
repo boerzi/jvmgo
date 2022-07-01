@@ -1,3 +1,7 @@
+## 第一章 命令行工具
+
+我直接用的开源的 https://github.com/guonaihong/clop，之前解析curl用的就是这个，比这本书用的系统自带的简单很多。
+
 ## 第二章 搜索class文件
 
 ### 类路径
@@ -18,3 +22,10 @@ https://zhuanlan.zhihu.com/p/214093661 这文章cp命令写反了。。
 
 对于java -cp就不需要指定Main-Class来指定入口。因为第一个参数就指定了你的入口类，第二个参数就是你的jar包。它会根据你的jar包找到第一个参数指定的Test类，来输出HelloWorld。
 
+
+
+## 第三章 解析class文件
+
+使用010 editor可以很方便查看到class信息，这一节基本就是在搬砖（对照010 editor来搬砖就好了），代码也有很多地方可以优化。
+
+![image-20220701222242533](/Users/leiyuchen/OneDrive/笔记/图片/image-20220701222242533.png)
