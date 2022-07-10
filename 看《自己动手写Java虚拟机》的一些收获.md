@@ -26,6 +26,14 @@ https://zhuanlan.zhihu.com/p/214093661 这文章cp命令写反了。。
 
 ## 第三章 解析class文件
 
-使用010 editor可以很方便查看到class信息，这一节基本就是在搬砖（对照010 editor来搬砖就好了），代码也有很多地方可以优化。
+使用010 editor可以很方便查看到class信息，这一节基本就是在搬砖（对照010 editor来搬砖就好了），代码也有很多地方可以优化，自己手打太辛苦了。
+
+https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html 官方说明
+
+这里有个很有意思的地方，class文件中用的不是标准的utf-8，用的是MUTF-8。
 
 ![image-20220701222242533](/Users/leiyuchen/OneDrive/笔记/图片/image-20220701222242533.png)
+
+这边发现一个奇怪的问题，long类型为什么会有一个continued
+
+![image-20220710210445676](/Users/leiyuchen/OneDrive/笔记/图片/image-20220710210445676.png)

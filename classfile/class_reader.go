@@ -1,6 +1,9 @@
 package classfile
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"fmt"
+)
 
 type ClassReader struct {
 	data []byte
@@ -37,11 +40,64 @@ func (c *ClassReader) readUint16s() []uint16 {
 	return s
 }
 
-func (c *ClassReader) readConstantPool(i int) interface{} {
-	cpTable := make([]ConstantPool, 0)
-	//for i := 1; i < count; i++ {
-	//	tag := r.readUnit8()
-	//	cpTable[i] = r.readConstantInfo(tag)
+func (c *ClassReader) readBytes(n uint32) []byte {
+	bytes := c.data[:n]
+	c.data = c.data[n:]
+	return bytes
+}
+
+//fieldsInfo
+func (c *ClassReader) readFields(cp []ConstantInfo) []*fieldsInfo {
+	list := make([]*fieldsInfo, len(cp))
+	for i := 0; i < len(cp); i++ {
+		list[i] = &fieldsInfo{
+			accessFlags:     c.readUint16(),
+			nameIndex:       c.readUint16(),
+			descriptorIndex: c.readUint16(),
+			attributesCount: c.readUint16(),
+			attributes:      c.readAttributes(int(c.readUint16())),
+		}
+
+	}
+	return list
+}
+
+func (c *ClassReader) readMethods(cp []ConstantInfo) []*MethodsInfo {
+	list := make([]*MethodsInfo, len(cp))
+	for i := 0; i < len(cp); i++ {
+		list[i] = &MethodsInfo{
+			accessFlags:     c.readUint16(),
+			nameIndex:       c.readUint16(),
+			descriptorIndex: c.readUint16(),
+			attributesCount: c.readUint16(),
+			attributes:      c.readAttributes(int(c.readUint16())),
+		}
+	}
+	return list
+}
+
+func (c *ClassReader) readAttributes(count int) []AttributeInfo {
+	attributeInfos := make([]AttributeInfo, count)
+	//for i := 0; i < count; i++ {
+	//	attributeInfos[i] =
+	//
 	//}
+	return attributeInfos
+}
+
+//todo 这里有个bug 不知道为什么会有
+func (c *ClassReader) readConstantPool(count int) []ConstantInfo {
+	cpTable := make([]ConstantInfo, count)
+	//直接得到length
+	for i := 0; i < count-1; i++ {
+		tag := c.readUint8()
+		cpTable[i] = c.readConstantInfo(tag)
+		fmt.Println(i, cpTable[i].info)
+		if tag == CONSTANT_Float || tag == CONSTANT_Long {
+			i++
+			cpTable[i] = ConstantInfo{}
+			fmt.Println(i, cpTable[i])
+		}
+	}
 	return cpTable
 }

@@ -6,39 +6,37 @@ type ClassFile struct {
 	minorVersion      uint16
 	majorVersion      uint16
 	constantPoolCount uint16
-	constantPool      []ConstantPool
+	constantPool      []ConstantInfo
 	accessFlags       uint16
 	thisClass         uint16
 	superClass        uint16
 	interfaces        []uint16
+	fieldsCount       uint16
 	fields            []*fieldsInfo
+	methodsCount      uint16
 	methods           []*MethodsInfo
+	attributesCount   uint16
 	attributes        []AttributeInfo
 }
 
 func (cf ClassFile) read(cr *ClassReader) {
-	cf.readAndCheckMagic(cr)               //魔数固定的
-	cf.minorVersion = cr.readUint16()      //次版本号
-	cf.majorVersion = cr.readUint16()      //主版本号
-	cf.constantPoolCount = cr.readUint16() //常量池
-	//cf.constantPool = cr.readConstantPool(int(cf.constantPoolCount)) //类和超类索引
-	cf.accessFlags = cr.readUint16()
-	cf.thisClass = cr.readUint16()
-	cf.superClass = cr.readUint16()
-	cf.interfaces = cr.readUint16s()
-	//cf.fields = readMembers(cr, cf.constantPool)
-	//cf.methods = readMembers(cr, cf.constantPool)
-	//cf.attributes = readAttributes(cr, cf.constantPool)
+	cf.readAndCheckMagic(cr)                                         //魔数固定的
+	cf.minorVersion = cr.readUint16()                                //次版本号
+	cf.majorVersion = cr.readUint16()                                //主版本号
+	cf.constantPoolCount = cr.readUint16()                           //常量池
+	cf.constantPool = cr.readConstantPool(int(cf.constantPoolCount)) //类和超类索引
+	//cf.accessFlags = cr.readUint16()
+	//cf.thisClass = cr.readUint16()
+	//cf.superClass = cr.readUint16()
+	//cf.interfaces = cr.readUint16s()
+	//cf.fieldsCount = cr.readUint16()
+	//cf.fields = cr.readFields(cf.constantPool)
+	//cf.methodsCount = cr.readUint16()
+	//cf.methods = cr.readMethods(cf.constantPool)
+	//cf.attributesCount = cr.readUint16()
+	//cf.attributes = cr.readAttributes(int(cf.constantPoolCount))
 	fmt.Println(cf)
 }
-
-//func readAttributes(cr *ClassReader, pool []ConstantPool) []AttributeInfo {
-//
-//}
-//
-//func readMembers(reader interface{}, pool interface{}) []*fieldsInfo {
-//
-//}
 
 func Parse(classData []byte) (cf *ClassFile, err error) {
 	cr := &ClassReader{data: classData}
