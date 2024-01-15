@@ -19,3 +19,4 @@
 ./cmd/cmd
 
 .DS_Store
+cmd
