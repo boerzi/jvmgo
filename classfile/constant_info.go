@@ -8,25 +8,30 @@ import (
 
 // Constant pool tags
 const (
-	CONSTANT_Class              = 7
-	CONSTANT_Fieldref           = 9
-	CONSTANT_Methodref          = 10
-	CONSTANT_InterfaceMethodref = 11
-	CONSTANT_String             = 8
-	CONSTANT_Integer            = 3
-	CONSTANT_Float              = 4
-	CONSTANT_Long               = 5
-	CONSTANT_Double             = 6
-	CONSTANT_NameAndType        = 12
-	CONSTANT_Utf8               = 1
-	CONSTANT_MethodHandle       = 15
-	CONSTANT_MethodType         = 16
-	CONSTANT_InvokeDynamic      = 18
+	ConstantClass              = 7
+	ConstantFieldref           = 9
+	ConstantMethodref          = 10
+	ConstantInterfacemethodref = 11
+	ConstantString             = 8
+	ConstantInteger            = 3
+	ConstantFloat              = 4
+	ConstantLong               = 5
+	ConstantDouble             = 6
+	ConstantNameandtype        = 12
+	ConstantUtf8               = 1
+	ConstantMethodhandle       = 15
+	ConstantMethodtype         = 16
+	ConstantInvokedynamic      = 18
 )
 
 type ConstantInfo struct {
 	tag  uint8
 	info interface{}
+}
+
+func (self ConstantInfo) getUtf8(index uint16) string {
+	utf8Info := self.info.(*ConstantUtf8Info)
+	return utf8Info.str
 }
 
 type ConstantIntegerInfo struct {
@@ -94,53 +99,53 @@ func (r *ClassReader) readConstantInfo(tag uint8) ConstantInfo {
 	var info interface{}
 
 	switch tag {
-	case CONSTANT_Integer:
+	case ConstantInteger:
 		bytes := r.readUint32()
 		info = &ConstantIntegerInfo{val: int32(bytes)}
-	case CONSTANT_Float:
+	case ConstantFloat:
 		bytes := r.readUint32()
 		info = &ConstantFloatInfo{val: math.Float32frombits(bytes)}
-	case CONSTANT_Long:
+	case ConstantLong:
 		bytes := r.readUint64()
 		info = &ConstantLongInfo{val: int64(bytes)}
-	case CONSTANT_Double:
+	case ConstantDouble:
 		bytes := r.readUint64()
 		info = &ConstantDoubleInfo{val: math.Float64frombits(bytes)}
-	case CONSTANT_Utf8:
+	case ConstantUtf8:
 		length := uint32(r.readUint16())
 		bytes := r.readBytes(length)
 		info = &ConstantUtf8Info{str: decodeMUTF8(bytes)}
-	case CONSTANT_String:
+	case ConstantString:
 		stringIndex := r.readUint16()
 		info = &ConstantStringInfo{stringIndex: stringIndex}
-	case CONSTANT_Class:
+	case ConstantClass:
 		nameIndex := r.readUint16()
 		info = &ConstantClassInfo{nameIndex: nameIndex}
-	case CONSTANT_Fieldref:
+	case ConstantFieldref:
 		nameIndex := r.readUint16()
 		descriptorIndex := r.readUint16()
 		info = &ConstantNameAndTypeInfo{nameIndex: nameIndex, descriptorIndex: descriptorIndex}
-	case CONSTANT_Methodref:
+	case ConstantMethodref:
 		classIndex := r.readUint16()
 		nameAndTypeIndex := r.readUint16()
 		info = &ConstantMethodRef{classIndex: classIndex, nameAndTypeIndex: nameAndTypeIndex}
-	case CONSTANT_InterfaceMethodref:
+	case ConstantInterfacemethodref:
 		classIndex := r.readUint16()
 		nameAndTypeIndex := r.readUint16()
 		info = &ConstantMethodRef{classIndex: classIndex, nameAndTypeIndex: nameAndTypeIndex}
-	case CONSTANT_NameAndType:
+	case ConstantNameandtype:
 		classIndex := r.readUint16()
 		nameAndTypeIndex := r.readUint16()
 		info = &ConstantMethodRef{classIndex: classIndex, nameAndTypeIndex: nameAndTypeIndex}
-	case CONSTANT_MethodType:
+	case ConstantMethodtype:
 		classIndex := r.readUint16()
 		nameAndTypeIndex := r.readUint16()
 		info = &ConstantMethodRef{classIndex: classIndex, nameAndTypeIndex: nameAndTypeIndex}
-	case CONSTANT_MethodHandle:
+	case ConstantMethodhandle:
 		classIndex := r.readUint16()
 		nameAndTypeIndex := r.readUint16()
 		info = &ConstantMethodRef{classIndex: classIndex, nameAndTypeIndex: nameAndTypeIndex}
-	case CONSTANT_InvokeDynamic:
+	case ConstantInvokedynamic:
 		classIndex := r.readUint16()
 		nameAndTypeIndex := r.readUint16()
 		info = &ConstantMethodRef{classIndex: classIndex, nameAndTypeIndex: nameAndTypeIndex}

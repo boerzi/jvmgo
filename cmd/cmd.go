@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/guonaihong/clop"
 	"leiyichen/jvmgo"
 )
@@ -9,6 +8,8 @@ import (
 func main() {
 	c := &jvmgo.Cmd{}
 	err := clop.Bind(c)
+	if err != nil {
+		panic(err)
+	}
 	c.Main()
-	fmt.Printf("%#v, %s\n", c, err)
 }

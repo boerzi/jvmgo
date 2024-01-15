@@ -46,54 +46,93 @@ func (c *ClassReader) readBytes(n uint32) []byte {
 	return bytes
 }
 
-//fieldsInfo
-func (c *ClassReader) readFields(cp []ConstantInfo) []*fieldsInfo {
-	list := make([]*fieldsInfo, len(cp))
-	for i := 0; i < len(cp); i++ {
+// fieldsInfo
+func (c *ClassReader) readFields(count uint16, cp ConstantPool) []*fieldsInfo {
+	list := make([]*fieldsInfo, count)
+	for i := range list {
+		accessFlags := c.readUint16()
+		nameIndex := c.readUint16()
+		descriptorIndex := c.readUint16()
+		attributesCount := c.readUint16()
+
 		list[i] = &fieldsInfo{
-			accessFlags:     c.readUint16(),
-			nameIndex:       c.readUint16(),
-			descriptorIndex: c.readUint16(),
-			attributesCount: c.readUint16(),
-			attributes:      c.readAttributes(int(c.readUint16())),
+			accessFlags:     accessFlags,
+			nameIndex:       nameIndex,
+			descriptorIndex: descriptorIndex,
+			attributesCount: attributesCount,
+			attributes:      c.readAttributes(attributesCount, cp),
 		}
 
 	}
 	return list
 }
 
-func (c *ClassReader) readMethods(cp []ConstantInfo) []*MethodsInfo {
-	list := make([]*MethodsInfo, len(cp))
-	for i := 0; i < len(cp); i++ {
+func (c *ClassReader) readMethods(count uint16, cp []ConstantInfo) []*MethodsInfo {
+	list := make([]*MethodsInfo, count)
+	for i := range list {
+		accessFlags := c.readUint16()
+		nameIndex := c.readUint16()
+		descriptorIndex := c.readUint16()
+		attributesCount := c.readUint16()
+
 		list[i] = &MethodsInfo{
-			accessFlags:     c.readUint16(),
-			nameIndex:       c.readUint16(),
-			descriptorIndex: c.readUint16(),
-			attributesCount: c.readUint16(),
-			attributes:      c.readAttributes(int(c.readUint16())),
+			accessFlags:     accessFlags,
+			nameIndex:       nameIndex,
+			descriptorIndex: descriptorIndex,
+			attributesCount: attributesCount,
+			attributes:      c.readAttributes(attributesCount, cp),
 		}
+
 	}
 	return list
 }
 
-func (c *ClassReader) readAttributes(count int) []AttributeInfo {
-	attributeInfos := make([]AttributeInfo, count)
-	//for i := 0; i < count; i++ {
-	//	attributeInfos[i] =
-	//
-	//}
-	return attributeInfos
+//func (c *ClassReader) readAttribute(count int, cp []ConstantInfo) []AttributeInfo {
+//	attributeInfos := make([]AttributeInfo, count)
+//	for i := range attributeInfos {
+//		attributeInfos[i] =
+//	}
+//	return attributeInfos
+//}
+
+type AttributeInfoCall interface {
+	readInfo(reader *ClassReader)
 }
 
-//todo 这里有个bug 不知道为什么会有
-func (c *ClassReader) readConstantPool(count int) []ConstantInfo {
+func (c *ClassReader) readAttributes(count uint16, cp ConstantPool) []AttributeInfo {
+	list := make([]AttributeInfo, count)
+	for i := range list {
+		attributeNameIndex := c.readUint16()
+		attrName := cp[attributeNameIndex-1].info.(*ConstantUtf8Info).str
+		attributeLength := c.readUint32()
+		info := newAttributeInfo(attrName, attributeLength, cp)
+		info.readInfo(c)
+		fmt.Println(attrName)
+		a := AttributeInfo{
+			attributeNameIndex,
+			attributeLength,
+			info,
+		}
+		list[i] = a
+	}
+	return list
+}
+
+type ConstantPool []ConstantInfo
+
+func (self ConstantPool) getUtf8(index uint16) string {
+	utf8Info := self[index].info.(*ConstantUtf8Info)
+	return utf8Info.str
+}
+
+func (c *ClassReader) readConstantPool(count int) ConstantPool {
 	cpTable := make([]ConstantInfo, count)
 	//直接得到length
 	for i := 0; i < count-1; i++ {
 		tag := c.readUint8()
 		cpTable[i] = c.readConstantInfo(tag)
-		fmt.Println(i, cpTable[i].info)
-		if tag == CONSTANT_Float || tag == CONSTANT_Long {
+		fmt.Println(i, cpTable[i].info, tag)
+		if tag == ConstantFloat || tag == ConstantLong {
 			i++
 			cpTable[i] = ConstantInfo{}
 			fmt.Println(i, cpTable[i])
