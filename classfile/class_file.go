@@ -12,14 +12,14 @@ type ClassFile struct {
 	superClass        uint16
 	interfaces        []uint16
 	fieldsCount       uint16
-	fields            []*fieldsInfo
+	fields            []*FieldsInfo
 	methodsCount      uint16
 	methods           []*MethodsInfo
 	attributesCount   uint16
 	attributes        []AttributeInfo
 }
 
-func (cf ClassFile) read(cr *ClassReader) {
+func (cf *ClassFile) read(cr *ClassReader) {
 	cf.readAndCheckMagic(cr)                                         //魔数固定的
 	cf.readAndCheckVersion(cr)                                       //版本号
 	cf.constantPoolCount = cr.readUint16()                           //常量池
@@ -34,7 +34,6 @@ func (cf ClassFile) read(cr *ClassReader) {
 	cf.methods = cr.readMethods(cf.methodsCount, cf.constantPool)    //方法表
 	cf.attributesCount = cr.readUint16()
 	cf.attributes = cr.readAttributes(cf.attributesCount, cf.constantPool)
-	fmt.Println(cf)
 }
 
 func Parse(classData []byte) (cf *ClassFile, err error) {
@@ -52,7 +51,7 @@ func Parse(classData []byte) (cf *ClassFile, err error) {
 	cr := &ClassReader{data: classData}
 	cf = &ClassFile{}
 	cf.read(cr)
-	return nil, err
+	return cf, err
 }
 
 func (cf *ClassFile) readAndCheckMagic(reader *ClassReader) {
@@ -69,12 +68,12 @@ func (cf *ClassFile) readAndCheckVersion(reader *ClassReader) {
 	//todo 书里面版本号写死了 这里先不写
 }
 
-//type ConstantPool struct {
+//type constantPool struct {
 //	tag  uint8
 //	info interface{} //可能有多种类型
 //}
 
-type fieldsInfo struct {
+type FieldsInfo struct {
 	accessFlags     uint16
 	nameIndex       uint16
 	descriptorIndex uint16

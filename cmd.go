@@ -41,7 +41,6 @@ func startJVM(reOption, class string) {
 		fmt.Printf("Could not find or load main class %s\n", class)
 		return
 	}
-
 	fmt.Printf("class data:%v\n", classData)
 
 }

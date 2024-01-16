@@ -46,16 +46,16 @@ func (c *ClassReader) readBytes(n uint32) []byte {
 	return bytes
 }
 
-// fieldsInfo
-func (c *ClassReader) readFields(count uint16, cp ConstantPool) []*fieldsInfo {
-	list := make([]*fieldsInfo, count)
+// FieldsInfo
+func (c *ClassReader) readFields(count uint16, cp ConstantPool) []*FieldsInfo {
+	list := make([]*FieldsInfo, count)
 	for i := range list {
 		accessFlags := c.readUint16()
 		nameIndex := c.readUint16()
 		descriptorIndex := c.readUint16()
 		attributesCount := c.readUint16()
 
-		list[i] = &fieldsInfo{
+		list[i] = &FieldsInfo{
 			accessFlags:     accessFlags,
 			nameIndex:       nameIndex,
 			descriptorIndex: descriptorIndex,

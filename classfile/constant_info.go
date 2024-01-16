@@ -55,7 +55,7 @@ type ConstantUtf8Info struct {
 }
 
 //type ConstantStringInfo struct {
-//	cp          ConstantPool
+//	cp          constantPool
 //	stringIndex uint16
 //}
 
