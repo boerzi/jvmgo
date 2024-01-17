@@ -3,7 +3,7 @@ package rtda
 import "testing"
 
 func TestRtda(t *testing.T) {
-	frame := newFrame(100, 100)
+	frame := newFrame(nil, 100, 100)
 	testLocalVars(frame.localVars)
 	testOperandStack(frame.operandStack)
 }

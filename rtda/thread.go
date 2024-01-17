@@ -6,16 +6,18 @@ type Thread struct {
 	stack *Stack
 }
 
-func (s *Thread) Pc() int {
+func (s *Thread) PC() int {
 	return s.pc
 }
 
-func (s *Thread) SetPc(pc int) {
+func (s *Thread) SetPC(pc int) {
 	s.pc = pc
 }
 
 func NewThread() *Thread {
-	return &Thread{}
+	return &Thread{
+		stack: newStack(1024),
+	}
 }
 
 func (s *Thread) PushFrame(frame *Frame) {
@@ -28,4 +30,8 @@ func (s *Thread) PopFrame() *Frame {
 
 func (s *Thread) CurrentFrame() *Frame {
 	return s.stack.top()
+}
+
+func (s *Thread) NewFrame(maxLocals uint, maxStack uint) *Frame {
+	return newFrame(s, maxLocals, maxStack)
 }

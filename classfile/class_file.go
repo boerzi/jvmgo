@@ -89,16 +89,43 @@ type MethodsInfo struct {
 	attributes      []AttributeInfo
 }
 
+func (i MethodsInfo) CodeAttribute() *CodeAttribute {
+	for _, attrInfo := range i.attributes {
+		switch attrInfo.info.(type) {
+		case *CodeAttribute:
+			return attrInfo.info.(*CodeAttribute)
+		}
+	}
+	return nil
+}
+
 type AttributeInfo struct {
 	attributeNameIndex uint16
 	attributeLength    uint32
 	info               interface{}
 }
 
-type MemberInfo struct {
-	cp              ConstantPool
-	accessFlags     uint16
-	nameIndex       uint16
-	descriptorIndex uint16
-	attributes      []AttributeInfo
+func (self *ClassFile) Methods() []*MethodsInfo {
+	return self.methods
+}
+
+func (self *ClassFile) MinorVersion() uint16 {
+	return self.minorVersion
+}
+func (self *ClassFile) MajorVersion() uint16 {
+	return self.majorVersion
+}
+func (self *ClassFile) ConstantPool() ConstantPool {
+	return self.constantPool
+}
+func (self *ClassFile) AccessFlags() uint16 {
+	return self.accessFlags
+}
+
+func (self *ClassFile) GetMethodsInfoName(m *MethodsInfo) string {
+	return self.constantPool.getUtf8(m.nameIndex - 1)
+}
+
+func (self *ClassFile) GetMethodsInfoDescriptor(m *MethodsInfo) string {
+	return self.constantPool.getUtf8(m.descriptorIndex - 1)
 }
