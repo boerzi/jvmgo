@@ -13,9 +13,9 @@ func TestInterpret(t *testing.T) {
 	interpret(method)
 }
 
-func getMainMethod(cf *classfile.ClassFile) *classfile.MethodsInfo {
+func getMainMethod(cf *classfile.ClassFile) *classfile.MemberInfo {
 	for _, m := range cf.Methods() {
-		if cf.GetMethodsInfoName(m) == "main" && cf.GetMethodsInfoDescriptor(m) == "([Ljava/lang/String;)V" {
+		if m.Name() == "main" && m.Descriptor() == "([Ljava/lang/String;)V" {
 			return m
 		}
 	}

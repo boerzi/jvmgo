@@ -1,6 +1,9 @@
 package rtda
 
-import "math"
+import (
+	"leiyichen/jvmgo/rtda/heap"
+	"math"
+)
 
 // OperandStack
 // 操作数栈
@@ -61,11 +64,11 @@ func (o *OperandStack) PopDouble() float64 {
 	return math.Float64frombits(bits)
 }
 
-func (o *OperandStack) PushRef(ref *Object) {
+func (o *OperandStack) PushRef(ref *heap.Object) {
 	o.slots[o.size].ref = ref
 	o.size++
 }
-func (o *OperandStack) PopRef() *Object {
+func (o *OperandStack) PopRef() *heap.Object {
 	o.size--
 	ref := o.slots[o.size].ref
 	o.slots[o.size].ref = nil

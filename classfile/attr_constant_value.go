@@ -1,11 +1,11 @@
 package classfile
 
 /*
-	    用于表达常量表达式的值
-		ConstantValue_attribute {
-		    u2 attribute_name_index;
-		    u4 attribute_length;
-		}
+	ConstantValue_attribute {
+	    u2 attribute_name_index;
+	    u4 attribute_length;
+	    u2 constantvalue_index;
+	}
 */
 type ConstantValueAttribute struct {
 	constantValueIndex uint16

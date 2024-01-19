@@ -1,8 +1,6 @@
 package classfile
 
 /*
-代码行号
-
 	LineNumberTable_attribute {
 	    u2 attribute_name_index;
 	    u4 attribute_length;

@@ -1,7 +1,11 @@
 package rtda
 
-import "math"
+import (
+	"leiyichen/jvmgo/rtda/heap"
+	"math"
+)
 
+// LocalVars 局部变量表存放编译期可知道的各种基本数据类型
 type LocalVars []Slot
 
 func newLocalVars(maxLocals uint) LocalVars {
@@ -47,9 +51,9 @@ func (s LocalVars) GetDouble(index uint) float64 {
 	return math.Float64frombits(bits)
 }
 
-func (s LocalVars) SetRef(index uint, ref *Object) {
+func (s LocalVars) SetRef(index uint, ref *heap.Object) {
 	s[index].ref = ref
 }
-func (s LocalVars) GetRef(index uint) *Object {
+func (s LocalVars) GetRef(index uint) *heap.Object {
 	return s[index].ref
 }

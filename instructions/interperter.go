@@ -7,7 +7,7 @@ import (
 	"leiyichen/jvmgo/rtda"
 )
 
-func interpret(m *classfile.MethodsInfo) {
+func interpret(m *classfile.MemberInfo) {
 	codeAttr := m.CodeAttribute()
 	maxLocals := codeAttr.MaxLocals()
 	maxStack := codeAttr.MaxStack()
