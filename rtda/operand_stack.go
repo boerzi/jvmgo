@@ -33,9 +33,9 @@ func (o *OperandStack) PopInt() int32 {
 }
 
 func (o *OperandStack) PushFloat(val float32) {
-	//bits := math.Float32bits(val)
-	//o.slots[o.size].num = int32(bits)
-	//o.size++
+	bits := math.Float32bits(val)
+	o.slots[o.size].num = int32(bits)
+	o.size++
 }
 func (o *OperandStack) PopFloat() float32 {
 	o.size--
@@ -43,6 +43,7 @@ func (o *OperandStack) PopFloat() float32 {
 	return math.Float32frombits(bits)
 }
 
+// long consumes two slots
 func (o *OperandStack) PushLong(val int64) {
 	o.slots[o.size].num = int32(val)
 	o.slots[o.size+1].num = int32(val >> 32)

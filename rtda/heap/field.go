@@ -18,7 +18,6 @@ func newFields(class *Class, cfFields []*classfile.MemberInfo) []*Field {
 	}
 	return fields
 }
-
 func (self *Field) copyAttributes(cfField *classfile.MemberInfo) {
 	if valAttr := cfField.ConstantValueAttribute(); valAttr != nil {
 		self.constValueIndex = uint(valAttr.ConstantValueIndex())

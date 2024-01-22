@@ -3,6 +3,7 @@ package jvmgo
 import (
 	"fmt"
 	"leiyichen/jvmgo/classpath"
+	"leiyichen/jvmgo/rtda/heap"
 	"strings"
 )
 
@@ -27,22 +28,28 @@ func (c *Cmd) Main() {
 		fmt.Println(c.Jre[1])
 		jre := c.Jre[0] //jre
 		s := c.Jre[1]   //class
-		startJVM(jre, s)
+		s2 := c.Jre[2]  //class
+		startJVM(jre, s2, s)
 	}
 
 }
 
-func startJVM(reOption, class string) {
-	cp := classpath.Parse(reOption, "")
+func startJVM(reOption, cpOption string, class string) {
+	cp := classpath.Parse(reOption, cpOption)
 	fmt.Printf("classpath:%v class:%v \n", cp, class)
-	className := strings.Replace(class, ".", "/", -1)
-	classData, _, err := cp.ReadClass(className)
-	if err != nil {
-		fmt.Printf("Could not find or load main class %s\n", class)
-		return
-	}
-	fmt.Printf("class data:%v\n", classData)
 
+	classLoader := heap.NewClassLoader(cp)
+
+	className := strings.Replace(class, ".", "/", -1)
+
+	mainClass := classLoader.LoadClass(className) //class结构处理
+	mainMethod := mainClass.GetMainMethod()       //先得到main方法（静态类 + main的特征）
+
+	if mainMethod != nil {
+		interpret(mainMethod)
+	} else {
+		fmt.Printf("Main method not found in class %s\n", class)
+	}
 }
 
 func printUsage(c []string) {

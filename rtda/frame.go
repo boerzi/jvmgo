@@ -1,40 +1,48 @@
 package rtda
 
+import "leiyichen/jvmgo/rtda/heap"
+
 // Frame
 // 有自己的局部变量标 和 操作数栈
 //
 // /**
 type Frame struct {
-	lower        *Frame
-	localVars    LocalVars
-	operandStack *OperandStack
-	thread       *Thread
-	nextPC       int
+	lower        *Frame        //上一级栈
+	localVars    LocalVars     //局部变量表
+	operandStack *OperandStack //操作数栈
+	thread       *Thread       //关联的线程
+	method       *heap.Method  //方法区
+	nextPC       int           //计数器
 }
 
-func newFrame(thread *Thread, maxLocals, maxStack uint) *Frame {
+func newFrame(thread *Thread, method *heap.Method) *Frame {
 	return &Frame{
 		thread:       thread,
-		localVars:    newLocalVars(maxLocals),
-		operandStack: newOperandStack(maxStack),
+		method:       method,
+		localVars:    newLocalVars(method.MaxLocals()),
+		operandStack: newOperandStack(method.MaxStack()),
 	}
 }
 
-func (self *Frame) LocalVars() LocalVars {
-	return self.localVars
+func (f *Frame) LocalVars() LocalVars {
+	return f.localVars
 }
-func (self *Frame) OperandStack() *OperandStack {
-	return self.operandStack
-}
-
-func (self *Frame) NextPC() int {
-	return self.nextPC
+func (f *Frame) OperandStack() *OperandStack {
+	return f.operandStack
 }
 
-func (self *Frame) SetNextPC(nextPC int) {
-	self.nextPC = nextPC
+func (f *Frame) NextPC() int {
+	return f.nextPC
 }
 
-func (self *Frame) Thread() *Thread {
-	return self.thread
+func (f *Frame) SetNextPC(nextPC int) {
+	f.nextPC = nextPC
+}
+
+func (f *Frame) Thread() *Thread {
+	return f.thread
+}
+
+func (f *Frame) Method() *heap.Method {
+	return f.method
 }

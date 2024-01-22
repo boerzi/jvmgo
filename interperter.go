@@ -1,25 +1,20 @@
-package instructions
+package jvmgo
 
 import (
 	"fmt"
-	"leiyichen/jvmgo/classfile"
+	"leiyichen/jvmgo/instructions"
 	"leiyichen/jvmgo/instructions/base"
 	"leiyichen/jvmgo/rtda"
+	"leiyichen/jvmgo/rtda/heap"
 )
 
-func interpret(m *classfile.MemberInfo) {
-	codeAttr := m.CodeAttribute()
-	maxLocals := codeAttr.MaxLocals()
-	maxStack := codeAttr.MaxStack()
-	byteCode := codeAttr.Code()
-
-	thread := rtda.NewThread()
-	frame := thread.NewFrame(maxLocals, maxStack)
-	thread.PushFrame(frame)
+func interpret(method *heap.Method) {
+	thread := rtda.NewThread()       //初始化线程
+	frame := thread.NewFrame(method) //帧初始化
+	thread.PushFrame(frame)          //压帧
 
 	defer catchErr(frame)
-
-	loop(thread, byteCode)
+	loop(thread, method.Code())
 }
 
 func loop(thread *rtda.Thread, bytecode []byte) {
@@ -32,7 +27,7 @@ func loop(thread *rtda.Thread, bytecode []byte) {
 
 		reader.Reset(bytecode, pc)
 		opcode := reader.ReadUint8()
-		inst := NewInstruction(opcode)
+		inst := instructions.NewInstruction(opcode)
 		inst.FetchOperands(reader)
 		frame.SetNextPC(reader.PC())
 

@@ -1,5 +1,7 @@
 package rtda
 
+import "leiyichen/jvmgo/rtda/heap"
+
 // Thread 有自己的栈和pc寄存器
 type Thread struct {
 	pc    int
@@ -32,6 +34,6 @@ func (s *Thread) CurrentFrame() *Frame {
 	return s.stack.top()
 }
 
-func (s *Thread) NewFrame(maxLocals uint, maxStack uint) *Frame {
-	return newFrame(s, maxLocals, maxStack)
+func (s *Thread) NewFrame(method *heap.Method) *Frame {
+	return newFrame(s, method)
 }

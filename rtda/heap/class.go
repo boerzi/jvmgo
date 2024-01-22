@@ -5,12 +5,6 @@ import (
 	"strings"
 )
 
-type ClassLoader struct {
-}
-
-type Slots struct {
-}
-
 type Class struct {
 	accessFlags       uint16 //类的访问标识包括私有公有枚举类型啥的
 	name              string
@@ -100,6 +94,13 @@ func (c *Class) getStaticMethod(name, descriptor string) *Method {
 	return nil
 }
 
-//func (self *Class) NewObject() *Object {
-//	return newObject(self)
-//}
+func (c *Class) NewObject() *Object {
+	return newObject(c)
+}
+
+func newObject(c *Class) *Object {
+	return &Object{
+		class:  c,
+		fields: newSlots(c.instanceSlotCount),
+	}
+}
