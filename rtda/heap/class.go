@@ -98,6 +98,21 @@ func (c *Class) NewObject() *Object {
 	return newObject(c)
 }
 
+func (self *Class) GetPackageName() string {
+	if i := strings.LastIndex(self.name, "/"); i >= 0 {
+		return self.name[:i]
+	}
+	return ""
+}
+
+func (c *Class) SuperClass() *Class {
+	return c.superClass
+}
+
+func (c *Class) Name() string {
+	return c.name
+}
+
 func newObject(c *Class) *Object {
 	return &Object{
 		class:  c,

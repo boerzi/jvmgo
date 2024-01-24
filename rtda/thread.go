@@ -37,3 +37,11 @@ func (s *Thread) CurrentFrame() *Frame {
 func (s *Thread) NewFrame(method *heap.Method) *Frame {
 	return newFrame(s, method)
 }
+
+func (s *Thread) TopFrame() *Frame {
+	return s.stack.pop()
+}
+
+func (s *Thread) IsStackEmpty() bool {
+	return s.stack.isEmpty()
+}

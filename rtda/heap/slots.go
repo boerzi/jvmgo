@@ -20,44 +20,44 @@ func newSlots(slotCount uint) Slots {
 	return nil
 }
 
-func (self Slots) SetInt(index uint, val int32) {
-	self[index].num = val
+func (s Slots) SetInt(index uint, val int32) {
+	s[index].num = val
 }
-func (self Slots) GetInt(index uint) int32 {
-	return self[index].num
+func (s Slots) GetInt(index uint) int32 {
+	return s[index].num
 }
 
-func (self Slots) SetFloat(index uint, val float32) {
+func (s Slots) SetFloat(index uint, val float32) {
 	bits := math.Float32bits(val)
-	self[index].num = int32(bits)
+	s[index].num = int32(bits)
 }
-func (self Slots) GetFloat(index uint) float32 {
-	bits := uint32(self[index].num)
+func (s Slots) GetFloat(index uint) float32 {
+	bits := uint32(s[index].num)
 	return math.Float32frombits(bits)
 }
 
-func (self Slots) SetLong(index uint, val int64) {
-	self[index].num = int32(val)
-	self[index+1].num = int32(val >> 32)
+func (s Slots) SetLong(index uint, val int64) {
+	s[index].num = int32(val)
+	s[index+1].num = int32(val >> 32)
 }
-func (self Slots) GetLong(index uint) int64 {
-	low := uint32(self[index].num)
-	high := uint32(self[index+1].num)
+func (s Slots) GetLong(index uint) int64 {
+	low := uint32(s[index].num)
+	high := uint32(s[index+1].num)
 	return int64(high)<<32 | int64(low)
 }
 
-func (self Slots) SetDouble(index uint, val float64) {
+func (s Slots) SetDouble(index uint, val float64) {
 	bits := math.Float64bits(val)
-	self.SetLong(index, int64(bits))
+	s.SetLong(index, int64(bits))
 }
-func (self Slots) GetDouble(index uint) float64 {
-	bits := uint64(self.GetLong(index))
+func (s Slots) GetDouble(index uint) float64 {
+	bits := uint64(s.GetLong(index))
 	return math.Float64frombits(bits)
 }
 
-func (self Slots) SetRef(index uint, ref *Object) {
-	self[index].ref = ref
+func (s Slots) SetRef(index uint, ref *Object) {
+	s[index].ref = ref
 }
-func (self Slots) GetRef(index uint) *Object {
-	return self[index].ref
+func (s Slots) GetRef(index uint) *Object {
+	return s[index].ref
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"leiyichen/jvmgo/classpath"
 	"leiyichen/jvmgo/rtda/heap"
+	"strconv"
 	"strings"
 )
 
@@ -26,19 +27,21 @@ func (c *Cmd) Main() {
 		}
 	} else if len(c.Jre) > 0 {
 		fmt.Println(c.Jre[1])
-		jre := c.Jre[0] //jre
-		s := c.Jre[1]   //class
-		s2 := c.Jre[2]  //class
-		startJVM(jre, s2, s)
+		jre := c.Jre[0]                        //jre地址
+		classPath := c.Jre[1]                  //类路径
+		className := c.Jre[2]                  //class
+		flag, _ := strconv.ParseBool(c.Jre[3]) //flag
+		startJVM(jre, className, classPath, flag)
 	}
 
 }
 
-func startJVM(reOption, cpOption string, class string) {
+func startJVM(reOption, cpOption string, class string, flag bool) {
 	cp := classpath.Parse(reOption, cpOption)
-	fmt.Printf("classpath:%v class:%v \n", cp, class)
+	fmt.Printf("classpath:%v \n", cp)
+	fmt.Printf("class:%v \n", class)
 
-	classLoader := heap.NewClassLoader(cp)
+	classLoader := heap.NewClassLoader(cp, flag)
 
 	className := strings.Replace(class, ".", "/", -1)
 
@@ -46,7 +49,7 @@ func startJVM(reOption, cpOption string, class string) {
 	mainMethod := mainClass.GetMainMethod()       //先得到main方法（静态类 + main的特征）
 
 	if mainMethod != nil {
-		interpret(mainMethod)
+		interpret(mainMethod, flag) //开始执行
 	} else {
 		fmt.Printf("Main method not found in class %s\n", class)
 	}

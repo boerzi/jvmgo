@@ -10,40 +10,40 @@ type ClassMember struct {
 	class       *Class
 }
 
-func (s *ClassMember) copyMemberInfo(memberInfo *classfile.MemberInfo) {
-	s.accessFlags = memberInfo.AccessFlags()
-	s.name = memberInfo.Name()
-	s.descriptor = memberInfo.Descriptor()
+func (cm *ClassMember) copyMemberInfo(memberInfo *classfile.MemberInfo) {
+	cm.accessFlags = memberInfo.AccessFlags()
+	cm.name = memberInfo.Name()
+	cm.descriptor = memberInfo.Descriptor()
 }
 
-func (self *ClassMember) IsPublic() bool {
-	return 0 != self.accessFlags&ACC_PUBLIC
+func (cm *ClassMember) IsPublic() bool {
+	return 0 != cm.accessFlags&ACC_PUBLIC
 }
-func (self *ClassMember) IsPrivate() bool {
-	return 0 != self.accessFlags&ACC_PRIVATE
+func (cm *ClassMember) IsPrivate() bool {
+	return 0 != cm.accessFlags&ACC_PRIVATE
 }
-func (self *ClassMember) IsProtected() bool {
-	return 0 != self.accessFlags&ACC_PROTECTED
+func (cm *ClassMember) IsProtected() bool {
+	return 0 != cm.accessFlags&ACC_PROTECTED
 }
-func (self *ClassMember) IsStatic() bool {
-	return 0 != self.accessFlags&ACC_STATIC
+func (cm *ClassMember) IsStatic() bool {
+	return 0 != cm.accessFlags&ACC_STATIC
 }
-func (self *ClassMember) IsFinal() bool {
-	return 0 != self.accessFlags&ACC_FINAL
+func (cm *ClassMember) IsFinal() bool {
+	return 0 != cm.accessFlags&ACC_FINAL
 }
-func (self *ClassMember) IsSynthetic() bool {
-	return 0 != self.accessFlags&ACC_SYNTHETIC
+func (cm *ClassMember) IsSynthetic() bool {
+	return 0 != cm.accessFlags&ACC_SYNTHETIC
 }
 
 // getters
-func (self *ClassMember) Name() string {
-	return self.name
+func (cm *ClassMember) Name() string {
+	return cm.name
 }
-func (self *ClassMember) Descriptor() string {
-	return self.descriptor
+func (cm *ClassMember) Descriptor() string {
+	return cm.descriptor
 }
-func (self *ClassMember) Class() *Class {
-	return self.class
+func (cm *ClassMember) Class() *Class {
+	return cm.class
 }
 
 // jvms 5.4.4

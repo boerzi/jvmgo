@@ -34,8 +34,8 @@ func (c *Classpath) parseUserClasspath(option string) {
 
 func Parse(jreOption, cpOption string) *Classpath {
 	cp := &Classpath{}
-	cp.parseBootAndExtClasspath(jreOption)
-	cp.parseUserClasspath(cpOption)
+	cp.parseBootAndExtClasspath(jreOption) //运行时必要项目
+	cp.parseUserClasspath(cpOption)        //用户自己的路径
 	return cp
 }
 

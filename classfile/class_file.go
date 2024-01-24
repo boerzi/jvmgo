@@ -55,16 +55,16 @@ func Parse(classData []byte) (cf *ClassFile, err error) {
 }
 
 func (self *ClassFile) read(reader *ClassReader) {
-	self.readAndCheckMagic(reader)
-	self.readAndCheckVersion(reader)
-	self.constantPool = readConstantPool(reader)
-	self.accessFlags = reader.readUint16()
-	self.thisClass = reader.readUint16()
-	self.superClass = reader.readUint16()
-	self.interfaces = reader.readUint16s()
-	self.fields = readMembers(reader, self.constantPool)
-	self.methods = readMembers(reader, self.constantPool)
-	self.attributes = readAttributes(reader, self.constantPool)
+	self.readAndCheckMagic(reader)                              //头结构
+	self.readAndCheckVersion(reader)                            //版本号
+	self.constantPool = readConstantPool(reader)                //常量池
+	self.accessFlags = reader.readUint16()                      //访问开关
+	self.thisClass = reader.readUint16()                        //当前类
+	self.superClass = reader.readUint16()                       //父类
+	self.interfaces = reader.readUint16s()                      //接口信息
+	self.fields = readMembers(reader, self.constantPool)        //字段信息
+	self.methods = readMembers(reader, self.constantPool)       //方法代码区
+	self.attributes = readAttributes(reader, self.constantPool) //属性
 }
 
 func (self *ClassFile) readAndCheckMagic(reader *ClassReader) {

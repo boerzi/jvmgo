@@ -1,22 +1,24 @@
 package heap
 
-func (c *Class) isAssignableFrom(other *Class) bool {
-	s, t := other, c
+// jvms8 6.5.instanceof
+// jvms8 6.5.checkcast
+func (self *Class) isAssignableFrom(other *Class) bool {
+	s, t := other, self
 
 	if s == t {
 		return true
 	}
 
 	if !t.IsInterface() {
-		return s.isSubClassOf(t)
+		return s.IsSubClassOf(t)
 	} else {
-		return s.isImplements(t)
+		return s.IsImplements(t)
 	}
 }
 
 // self extends c
-func (c *Class) isSubClassOf(other *Class) bool {
-	for c := c.superClass; c != nil; c = c.superClass {
+func (self *Class) IsSubClassOf(other *Class) bool {
+	for c := self.superClass; c != nil; c = c.superClass {
 		if c == other {
 			return true
 		}
@@ -25,8 +27,8 @@ func (c *Class) isSubClassOf(other *Class) bool {
 }
 
 // self implements iface
-func (c *Class) isImplements(iface *Class) bool {
-	for c := c; c != nil; c = c.superClass {
+func (self *Class) IsImplements(iface *Class) bool {
+	for c := self; c != nil; c = c.superClass {
 		for _, i := range c.interfaces {
 			if i == iface || i.isSubInterfaceOf(iface) {
 				return true
@@ -37,9 +39,24 @@ func (c *Class) isImplements(iface *Class) bool {
 }
 
 // self extends iface
-func (c *Class) isSubInterfaceOf(iface *Class) bool {
-	for _, superInterface := range c.interfaces {
+func (self *Class) isSubInterfaceOf(iface *Class) bool {
+	for _, superInterface := range self.interfaces {
 		if superInterface == iface || superInterface.isSubInterfaceOf(iface) {
+			return true
+		}
+	}
+	return false
+}
+
+// c extends self
+func (self *Class) IsSuperClassOf(other *Class) bool {
+	return other.IsSubClassOf(self)
+}
+
+// self extends c
+func (self *Class) isSubClassOf(other *Class) bool {
+	for c := self.superClass; c != nil; c = c.superClass {
+		if c == other {
 			return true
 		}
 	}

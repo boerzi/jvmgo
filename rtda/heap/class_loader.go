@@ -7,14 +7,16 @@ import (
 )
 
 type ClassLoader struct {
-	cp       *classpath.Classpath
-	classMap map[string]*Class
+	cp          *classpath.Classpath
+	verboseFlag bool
+	classMap    map[string]*Class
 }
 
-func NewClassLoader(cp *classpath.Classpath) *ClassLoader {
+func NewClassLoader(cp *classpath.Classpath, verboseFlag bool) *ClassLoader {
 	return &ClassLoader{
-		cp:       cp,
-		classMap: make(map[string]*Class),
+		cp:          cp,
+		verboseFlag: verboseFlag,
+		classMap:    make(map[string]*Class),
 	}
 }
 
@@ -26,10 +28,12 @@ func (c *ClassLoader) LoadClass(name string) *Class {
 }
 
 func (c *ClassLoader) loadNonArrayClass(name string) *Class {
-	data, entry := c.readClass(name)
-	class := c.defineClass(data)
+	data, entry := c.readClass(name) //拿到二进制class
+	class := c.defineClass(data)     //开始解析文件结构
 	link(class)
-	fmt.Printf("[Loaded %s from %s\n]", name, entry)
+	if c.verboseFlag {
+		fmt.Printf("[Loaded %s from %s\n]", name, entry)
+	}
 	return class
 }
 
@@ -53,6 +57,7 @@ func allocAndInitStaticVars(class *Class) {
 	}
 }
 
+// initStaticFinalVar 初始化静态+常量
 func initStaticFinalVar(class *Class, field *Field) {
 	vars := class.staticVars
 	cp := class.constantPool
@@ -79,8 +84,8 @@ func initStaticFinalVar(class *Class, field *Field) {
 	}
 }
 
+// calcStaticFieldSlotIds 处理静态变量字段
 func calcStaticFieldSlotIds(class *Class) {
-	//处理静态变量字段
 	slotId := uint(0)
 	for _, field := range class.fields {
 		if field.IsStatic() {
@@ -94,6 +99,7 @@ func calcStaticFieldSlotIds(class *Class) {
 	class.staticSlotCount = slotId
 }
 
+// calcInstanceFieldSlotIds 载入slot大小包括父类的字段
 func calcInstanceFieldSlotIds(class *Class) {
 	slotId := uint(0)
 	if class.superClass != nil {

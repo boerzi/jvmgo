@@ -23,6 +23,20 @@ func (self *InterfaceMethodRef) ResolvedInterfaceMethod() *Method {
 
 // jvms8 5.4.3.4
 func (self *InterfaceMethodRef) resolveInterfaceMethodRef() {
-	//class := self.ResolveClass()
-	// todo
+	d := self.cp.class
+	c := self.ResolvedClass()
+	if !c.IsInterface() {
+		panic("java.lang.IncompatibleClassChangeError")
+	}
+
+	lookupInterfaceMethod(d, self.name, self.descriptor)
+}
+
+func lookupInterfaceMethod(ifs *Class, name string, descriptor string) *Method {
+	for _, method := range ifs.methods {
+		if method.name == name && method.descriptor == descriptor {
+			return method
+		}
+	}
+	return lookupMethodInterfaces(ifs.interfaces, name, descriptor)
 }
