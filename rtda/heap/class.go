@@ -19,6 +19,7 @@ type Class struct {
 	instanceSlotCount uint
 	staticSlotCount   uint
 	staticVars        Slots
+	initStarted       bool
 }
 
 func newClass(cf *classfile.ClassFile) *Class {
@@ -33,69 +34,65 @@ func newClass(cf *classfile.ClassFile) *Class {
 	return class
 }
 
-func (c *Class) IsPublic() bool {
-	return 0 != c.accessFlags&ACC_PUBLIC
+func (self *Class) IsPublic() bool {
+	return 0 != self.accessFlags&ACC_PUBLIC
 }
-func (c *Class) IsFinal() bool {
-	return 0 != c.accessFlags&ACC_FINAL
+func (self *Class) IsFinal() bool {
+	return 0 != self.accessFlags&ACC_FINAL
 }
-func (c *Class) IsSuper() bool {
-	return 0 != c.accessFlags&ACC_SUPER
+func (self *Class) IsSuper() bool {
+	return 0 != self.accessFlags&ACC_SUPER
 }
-func (c *Class) IsInterface() bool {
-	return 0 != c.accessFlags&ACC_INTERFACE
+func (self *Class) IsInterface() bool {
+	return 0 != self.accessFlags&ACC_INTERFACE
 }
-func (c *Class) IsAbstract() bool {
-	return 0 != c.accessFlags&ACC_ABSTRACT
+func (self *Class) IsAbstract() bool {
+	return 0 != self.accessFlags&ACC_ABSTRACT
 }
-func (c *Class) IsSynthetic() bool {
-	return 0 != c.accessFlags&ACC_SYNTHETIC
+func (self *Class) IsSynthetic() bool {
+	return 0 != self.accessFlags&ACC_SYNTHETIC
 }
-func (c *Class) IsAnnotation() bool {
-	return 0 != c.accessFlags&ACC_ANNOTATION
+func (self *Class) IsAnnotation() bool {
+	return 0 != self.accessFlags&ACC_ANNOTATION
 }
-func (c *Class) IsEnum() bool {
-	return 0 != c.accessFlags&ACC_ENUM
+func (self *Class) IsEnum() bool {
+	return 0 != self.accessFlags&ACC_ENUM
 }
 
-func (c *Class) ConstantPool() *ConstantPool {
-	return c.constantPool
+// getters
+func (self *Class) Name() string {
+	return self.name
 }
-func (c *Class) StaticVars() Slots {
-	return c.staticVars
+func (self *Class) ConstantPool() *ConstantPool {
+	return self.constantPool
+}
+func (self *Class) Fields() []*Field {
+	return self.fields
+}
+func (self *Class) Methods() []*Method {
+	return self.methods
+}
+func (self *Class) Loader() *ClassLoader {
+	return self.loader
+}
+func (self *Class) SuperClass() *Class {
+	return self.superClass
+}
+func (self *Class) StaticVars() Slots {
+	return self.staticVars
+}
+func (self *Class) InitStarted() bool {
+	return self.initStarted
+}
+
+func (self *Class) StartInit() {
+	self.initStarted = true
 }
 
 // jvms 5.4.4
-func (c *Class) isAccessibleTo(other *Class) bool {
-	return c.IsPublic() ||
-		c.getPackageName() == other.getPackageName()
-}
-
-func (c *Class) getPackageName() string {
-	if i := strings.LastIndex(c.name, "/"); i >= 0 {
-		return c.name[:i]
-	}
-	return ""
-}
-
-func (c *Class) GetMainMethod() *Method {
-	return c.getStaticMethod("main", "([Ljava/lang/String;)V")
-}
-
-func (c *Class) getStaticMethod(name, descriptor string) *Method {
-	for _, method := range c.methods {
-		if method.IsStatic() &&
-			method.name == name &&
-			method.descriptor == descriptor {
-
-			return method
-		}
-	}
-	return nil
-}
-
-func (c *Class) NewObject() *Object {
-	return newObject(c)
+func (self *Class) isAccessibleTo(other *Class) bool {
+	return self.IsPublic() ||
+		self.GetPackageName() == other.GetPackageName()
 }
 
 func (self *Class) GetPackageName() string {
@@ -105,17 +102,56 @@ func (self *Class) GetPackageName() string {
 	return ""
 }
 
-func (c *Class) SuperClass() *Class {
-	return c.superClass
+func (self *Class) GetMainMethod() *Method {
+	return self.getMethod("main", "([Ljava/lang/String;)V", true)
+}
+func (self *Class) GetClinitMethod() *Method {
+	return self.getMethod("<clinit>", "()V", true)
 }
 
-func (c *Class) Name() string {
-	return c.name
-}
+func (self *Class) getMethod(name, descriptor string, isStatic bool) *Method {
+	for c := self; c != nil; c = c.superClass {
+		for _, method := range c.methods {
+			if method.IsStatic() == isStatic &&
+				method.name == name &&
+				method.descriptor == descriptor {
 
-func newObject(c *Class) *Object {
-	return &Object{
-		class:  c,
-		fields: newSlots(c.instanceSlotCount),
+				return method
+			}
+		}
 	}
+	return nil
+}
+
+func (self *Class) getField(name, descriptor string, isStatic bool) *Field {
+	for c := self; c != nil; c = c.superClass {
+		for _, field := range c.fields {
+			if field.IsStatic() == isStatic &&
+				field.name == name &&
+				field.descriptor == descriptor {
+
+				return field
+			}
+		}
+	}
+	return nil
+}
+
+func (self *Class) isJlObject() bool {
+	return self.name == "java/lang/Object"
+}
+func (self *Class) isJlCloneable() bool {
+	return self.name == "java/lang/Cloneable"
+}
+func (self *Class) isJioSerializable() bool {
+	return self.name == "java/io/Serializable"
+}
+
+func (self *Class) NewObject() *Object {
+	return newObject(self)
+}
+
+func (self *Class) ArrayClass() *Class {
+	arrayClassName := getArrayClassName(self.name)
+	return self.loader.LoadClass(arrayClassName)
 }

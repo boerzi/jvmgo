@@ -9,16 +9,50 @@ func (self *Class) isAssignableFrom(other *Class) bool {
 		return true
 	}
 
-	if !t.IsInterface() {
-		return s.IsSubClassOf(t)
+	if !s.IsArray() {
+		if !s.IsInterface() {
+			// s is class
+			if !t.IsInterface() {
+				// t is not interface
+				return s.IsSubClassOf(t)
+			} else {
+				// t is interface
+				return s.IsImplements(t)
+			}
+		} else {
+			// s is interface
+			if !t.IsInterface() {
+				// t is not interface
+				return t.isJlObject()
+			} else {
+				// t is interface
+				return t.isSuperInterfaceOf(s)
+			}
+		}
 	} else {
-		return s.IsImplements(t)
+		// s is array
+		if !t.IsArray() {
+			if !t.IsInterface() {
+				// t is class
+				return t.isJlObject()
+			} else {
+				// t is interface
+				return t.isJlCloneable() || t.isJioSerializable()
+			}
+		} else {
+			// t is array
+			sc := s.ComponentClass()
+			tc := t.ComponentClass()
+			return sc == tc || tc.isAssignableFrom(sc)
+		}
 	}
+
+	return false
 }
 
 // self extends c
-func (self *Class) IsSubClassOf(other *Class) bool {
-	for c := self.superClass; c != nil; c = c.superClass {
+func (c *Class) IsSubClassOf(other *Class) bool {
+	for c := c.superClass; c != nil; c = c.superClass {
 		if c == other {
 			return true
 		}
@@ -27,8 +61,8 @@ func (self *Class) IsSubClassOf(other *Class) bool {
 }
 
 // self implements iface
-func (self *Class) IsImplements(iface *Class) bool {
-	for c := self; c != nil; c = c.superClass {
+func (c *Class) IsImplements(iface *Class) bool {
+	for c := c; c != nil; c = c.superClass {
 		for _, i := range c.interfaces {
 			if i == iface || i.isSubInterfaceOf(iface) {
 				return true
@@ -38,9 +72,13 @@ func (self *Class) IsImplements(iface *Class) bool {
 	return false
 }
 
+func (self *Class) isSuperInterfaceOf(iface *Class) bool {
+	return iface.isSubInterfaceOf(self)
+}
+
 // self extends iface
-func (self *Class) isSubInterfaceOf(iface *Class) bool {
-	for _, superInterface := range self.interfaces {
+func (c *Class) isSubInterfaceOf(iface *Class) bool {
+	for _, superInterface := range c.interfaces {
 		if superInterface == iface || superInterface.isSubInterfaceOf(iface) {
 			return true
 		}
@@ -49,13 +87,13 @@ func (self *Class) isSubInterfaceOf(iface *Class) bool {
 }
 
 // c extends self
-func (self *Class) IsSuperClassOf(other *Class) bool {
-	return other.IsSubClassOf(self)
+func (c *Class) IsSuperClassOf(other *Class) bool {
+	return other.IsSubClassOf(c)
 }
 
 // self extends c
-func (self *Class) isSubClassOf(other *Class) bool {
-	for c := self.superClass; c != nil; c = c.superClass {
+func (c *Class) isSubClassOf(other *Class) bool {
+	for c := c.superClass; c != nil; c = c.superClass {
 		if c == other {
 			return true
 		}

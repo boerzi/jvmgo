@@ -24,6 +24,9 @@ func (c *ClassLoader) LoadClass(name string) *Class {
 	if class, ok := c.classMap[name]; ok {
 		return class
 	}
+	if name[0] == '[' {
+		return c.loadArrayClass(name)
+	}
 	return c.loadNonArrayClass(name)
 }
 
@@ -43,7 +46,7 @@ func link(class *Class) {
 }
 
 func prepare(class *Class) {
-	calcInstanceFieldSlotIds(class)
+	calcInstanceFieldSlotIds(class) //计算字段的slot
 	calcStaticFieldSlotIds(class)
 	allocAndInitStaticVars(class)
 }
@@ -79,7 +82,9 @@ func initStaticFinalVar(class *Class, field *Field) {
 			val := cp.GetConstant(cpIndex).(float64)
 			vars.SetDouble(slotId, val)
 		case "Ljava/lang/String;":
-			panic("todo")
+			goStr := cp.GetConstant(cpIndex).(string)
+			jString := JString(class.loader, goStr)
+			vars.SetRef(slotId, jString)
 		}
 	}
 }
@@ -135,6 +140,22 @@ func (c *ClassLoader) defineClass(data []byte) *Class {
 	resolveSuperClass(class) //单继承
 	resolveInterfaces(class) //多接口
 	c.classMap[class.name] = class
+	return class
+}
+
+func (c *ClassLoader) loadArrayClass(name string) *Class {
+	class := &Class{
+		accessFlags: ACC_PUBLIC,
+		name:        name,
+		loader:      c,
+		initStarted: true,
+		superClass:  c.LoadClass("java/lang/Object"),
+		interfaces: []*Class{
+			c.LoadClass("java/lang/Cloneable"),
+			c.LoadClass("java/io/Serializable"),
+		},
+	}
+	c.classMap[name] = class
 	return class
 }
 

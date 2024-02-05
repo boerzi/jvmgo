@@ -8,13 +8,26 @@ import (
 	"leiyichen/jvmgo/rtda/heap"
 )
 
-func interpret(method *heap.Method, logInst bool) {
+func interpret(method *heap.Method, logInst bool, args []string) {
 	thread := rtda.NewThread()       //初始化线程
 	frame := thread.NewFrame(method) //帧初始化获取代码
 	thread.PushFrame(frame)          //压帧
 
+	jArgs := createArgsArray(method.Class().Loader(), args)
+	frame.LocalVars().SetRef(0, jArgs)
+
 	defer catchErr(thread)
 	loop(thread, logInst)
+}
+
+func createArgsArray(loader *heap.ClassLoader, args []string) *heap.Object {
+	stringClass := loader.LoadClass("java/lang/String")
+	argsArr := stringClass.ArrayClass().NewArray(uint(len(args)))
+	jArgs := argsArr.Refs()
+	for i, arg := range args {
+		jArgs[i] = heap.JString(loader, arg)
+	}
+	return argsArr
 }
 
 func loop(thread *rtda.Thread, logInst bool) {
